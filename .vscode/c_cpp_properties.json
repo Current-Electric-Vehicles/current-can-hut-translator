@@ -1,0 +1,87 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "/Users/briandilley/Projects/current-can-hut-translator/include",
+                "/Users/briandilley/Projects/current-can-hut-translator/src",
+                "/Users/briandilley/Projects/current-can-hut-translator/.pio/libdeps/mkrzero/CAN/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SPI",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/cores/arduino/api/deprecated",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/cores/arduino/api/deprecated-avr-comp",
+                "/Users/briandilley/.platformio/packages/framework-cmsis/CMSIS/Include",
+                "/Users/briandilley/.platformio/packages/framework-cmsis-atmel/CMSIS/Device/ATMEL",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/cores/arduino",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/variants/mkrzero",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/HID",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/I2S/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SAMD_AnalogCorrection/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SAMD_BootloaderUpdater/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SBU/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SDU/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SFU/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SNU/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SSU/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/USBHost/src",
+                "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/Wire",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/Users/briandilley/Projects/current-can-hut-translator/include",
+                    "/Users/briandilley/Projects/current-can-hut-translator/src",
+                    "/Users/briandilley/Projects/current-can-hut-translator/.pio/libdeps/mkrzero/CAN/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SPI",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/cores/arduino/api/deprecated",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/cores/arduino/api/deprecated-avr-comp",
+                    "/Users/briandilley/.platformio/packages/framework-cmsis/CMSIS/Include",
+                    "/Users/briandilley/.platformio/packages/framework-cmsis-atmel/CMSIS/Device/ATMEL",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/cores/arduino",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/variants/mkrzero",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/HID",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/I2S/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SAMD_AnalogCorrection/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SAMD_BootloaderUpdater/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SBU/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SDU/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SFU/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SNU/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/SSU/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/USBHost/src",
+                    "/Users/briandilley/.platformio/packages/framework-arduino-samd/libraries/Wire",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=60115",
+                "ARDUINO_SAMD_MKRZERO",
+                "__SAMD21G18A__",
+                "USE_ARDUINO_MKR_PIN_LAYOUT",
+                "ARDUINO=10805",
+                "F_CPU=48000000L",
+                "USBCON",
+                "USB_VID=0x2341",
+                "USB_PID=0x804F",
+                "USB_PRODUCT=\"Arduino MKRZERO\"",
+                "USB_MANUFACTURER=\"Arduino\"",
+                "ARDUINO_ARCH_SAMD",
+                ""
+            ],
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++17",
+            "compilerPath": "/Users/briandilley/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-gcc",
+            "compilerArgs": [
+                "-mcpu=cortex-m0plus",
+                "-mthumb",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}

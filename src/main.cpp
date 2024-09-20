@@ -1,5 +1,6 @@
 
 #include <CAN.h>
+#include "can_codec.h"
 
 typedef struct {
   long id;
@@ -37,6 +38,8 @@ void send(CANMessage& msg) {
 
 void setup() {
 
+  delay(2000);
+
   Serial.begin(115200);
   while (!Serial);
 
@@ -44,6 +47,8 @@ void setup() {
     Serial.println("Unable to start CAN");
     while (1);
   }
+
+  Serial.println("CAN translator started");
 }
 
 void loop() {
@@ -60,20 +65,21 @@ void loop() {
   msg.extended = CAN.packetExtended();
   msg.len = CAN.packetDlc();
   for (int i = 0; i < 8; i++) {
-    msg.data[0] = (i < msg.len && CAN.available())
+    msg.data[i] = (i < msg.len && CAN.available())
         ? CAN.read()
         : 0;
   }
 
   switch (msg.id) {
     case 0x0A2:
-      uint8_t d1 = msg.d1;
-      uint8_t d2 = msg.d2;
+      auto signal = decodeSignal(&msg.data[0], 0, 16, false, true, 0.1, 0);
+      if (signal <= 0) {
+        break;
+      }
 
       msg.id = 0x126;
       msg.u64 = 0;
-      msg.d4 = d2;
-      msg.d5 = d1;
+      encodeSignal(&msg.data[0], signal, 32, 16, false, true, 1, 0);
 
       send(msg);
       break;
