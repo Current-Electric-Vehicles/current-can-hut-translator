@@ -38,17 +38,16 @@ void send(CANMessage& msg) {
 
 void setup() {
 
-  delay(2000);
+  // delay(2000);
 
-  Serial.begin(115200);
-  while (!Serial);
+  // Serial.begin(115200);
 
   if (!CAN.begin(500E3)) {
     Serial.println("Unable to start CAN");
     while (1);
   }
 
-  Serial.println("CAN translator started");
+  // Serial.println("CAN translator started");
 }
 
 void loop() {
@@ -76,6 +75,9 @@ void loop() {
       if (signal <= 0) {
         break;
       }
+
+      // Serial.print("id: "); Serial.print(msg.id, HEX);
+      // Serial.print(" "); Serial.println(signal);
 
       msg.id = 0x126;
       msg.u64 = 0;
