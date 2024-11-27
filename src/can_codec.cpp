@@ -13,83 +13,97 @@ inline uint64_t denormalizeSignalValue(float physical_value, float factor, float
     return (int64_t)((physical_value - offset) / factor);
 }
 
-void clearBits(uint8_t* target_byte, uint8_t* bits_to_clear, const uint8_t startbit, const uint8_t length) {
-    for (uint8_t i = startbit; i < length + startbit; ++i) {
-        *target_byte &= ~(1UL << i);
-        *bits_to_clear -= 1;
-    }
+void clearBits(uint8_t* target_byte, const uint8_t startbit, const uint8_t length) {
+  uint8_t endbit = startbit + length;
+  if (endbit > 8) endbit = 8;
+  for (uint8_t i = startbit; i < endbit; ++i) {
+    *target_byte &= ~(1UL << i);
+  }
 }
 
-void storeSignal(uint8_t* frame, uint64_t value, const uint8_t startbit, const uint8_t length, bool bigEndian, bool isSigned) {
-    uint8_t start_byte = startbit / 8;
-    uint8_t startbit_in_byte = startbit % 8;
-    uint8_t end_byte = 0;
-    int8_t count = 0;
-    uint8_t current_target_length = (8 - startbit_in_byte);
-    uint8_t bits_to_clear = length;
+void storeSignal(uint8_t* frame, uint64_t value, uint8_t startbit, uint8_t length, bool bigEndian, bool isSigned) {
+  if (length == 0 || length > 64) return; // Validate length
 
-    // Mask the value
-    value &= MASK64(length);
+  // Mask the value to the correct length
+  value &= MASK64(length);
 
-    // Write bits of startbyte
-    clearBits(&frame[start_byte], &bits_to_clear, startbit_in_byte, current_target_length > length ? length : current_target_length);
-    frame[start_byte] |= value << startbit_in_byte;
-
-    // Write residual bytes
-    if (bigEndian) { // Motorola (big endian
-        end_byte = (start_byte * 8 + 8 - startbit_in_byte - length) / 8;
-        for (count = start_byte - 1; count >= end_byte; count--) {
-            clearBits(&frame[count], &bits_to_clear, 0, bits_to_clear >= 8 ? 8 : bits_to_clear);
-            frame[count] |= value >> current_target_length;
-            current_target_length += 8;
-        }
-
-    } else { // Intel (little endian)
-        end_byte = (startbit + length - 1) / 8;
-        for (count = start_byte + 1; count <= end_byte; count++) {
-            clearBits(&frame[count], &bits_to_clear, 0, bits_to_clear >= 8 ? 8 : bits_to_clear);
-            frame[count] |= value >> current_target_length;
-            current_target_length += 8;
-        }
+  if (bigEndian) {
+    // Big Endian (Motorola)
+    uint16_t bit_pos = startbit;
+    while (length > 0) {
+      uint8_t byte_index = bit_pos / 8;
+      uint8_t bit_in_byte = 7 - (bit_pos % 8);
+      uint8_t bits_in_this_byte = (bit_in_byte + 1 < length) ? bit_in_byte + 1 : length;
+      uint8_t shift_amount = bit_in_byte - bits_in_this_byte + 1;
+      clearBits(&frame[byte_index], shift_amount, bits_in_this_byte);
+      frame[byte_index] |= ((value >> (length - bits_in_this_byte)) & ((1 << bits_in_this_byte) - 1)) << shift_amount;
+      length -= bits_in_this_byte;
+      bit_pos += bits_in_this_byte;
     }
+  } else {
+    // Little Endian (Intel)
+    uint16_t bit_pos = startbit;
+    uint8_t current_bit = 0;
+    while (length > 0) {
+      uint8_t byte_index = bit_pos / 8;
+      uint8_t bit_in_byte = bit_pos % 8;
+      uint8_t bits_in_this_byte = (8 - bit_in_byte < length) ? 8 - bit_in_byte : length;
+      clearBits(&frame[byte_index], bit_in_byte, bits_in_this_byte);
+      frame[byte_index] |= ((value >> current_bit) & ((1ULL << bits_in_this_byte) - 1)) << bit_in_byte;
+      length -= bits_in_this_byte;
+      current_bit += bits_in_this_byte;
+      bit_pos += bits_in_this_byte;
+    }
+  }
 }
 
 uint64_t extractSignal(const uint8_t* frame, const uint8_t startbit, const uint8_t length, bool bigEndian, bool isSigned) {
-    uint8_t start_byte = startbit / 8;
-    uint8_t startbit_in_byte = startbit % 8;
-    uint8_t current_target_length = (8 - startbit_in_byte);
-    uint8_t end_byte = 0;
-    int8_t count = 0;
+  if (length == 0 || length > 64) return 0; // Validate length
 
-    // Write first bits to target
-    uint64_t target = frame[start_byte] >> startbit_in_byte;
+  uint64_t target = 0;
 
-    // Write residual bytes
-    if (bigEndian) {  // Motorola (big endian)
-        end_byte = (start_byte * 8 + 8 - startbit_in_byte - length) / 8;
-        for (count = start_byte - 1; count >= end_byte; count--) {
-            target |= frame[count] << current_target_length;
-            current_target_length += 8;
-        }
-
-    } else { // Intel (little endian)
-        end_byte = (startbit + length - 1) / 8;
-        for (count = start_byte + 1; count <= end_byte; count++) {
-            target |= frame[count] << current_target_length;
-            current_target_length += 8;
-        }
+  if (bigEndian) {
+    // Big Endian (Motorola)
+    uint16_t bit_pos = startbit;
+    uint8_t bits_remaining = length;
+    while (bits_remaining > 0) {
+      uint8_t byte_index = bit_pos / 8;
+      uint8_t bit_in_byte = 7 - (bit_pos % 8);
+      uint8_t bits_in_this_byte = (bit_in_byte + 1 < bits_remaining) ? bit_in_byte + 1 : bits_remaining;
+      uint8_t shift_amount = bits_remaining - bits_in_this_byte;
+      uint8_t mask = ((1 << bits_in_this_byte) - 1);
+      uint8_t data = (frame[byte_index] >> (bit_in_byte - bits_in_this_byte + 1)) & mask;
+      target |= ((uint64_t)data) << shift_amount;
+      bits_remaining -= bits_in_this_byte;
+      bit_pos += bits_in_this_byte;
     }
-
-    // Mask value
-    target &= MASK64(length);
-
-    // perform sign extension
-    if (isSigned) {
-        int64_t msb_sign_mask = 1 << (length - 1);
-        target = ((int64_t)target ^ msb_sign_mask) - msb_sign_mask;
+  } else {
+    // Little Endian (Intel)
+    uint16_t bit_pos = startbit;
+    uint8_t bits_remaining = length;
+    uint8_t current_bit = 0;
+    while (bits_remaining > 0) {
+      uint8_t byte_index = bit_pos / 8;
+      uint8_t bit_in_byte = bit_pos % 8;
+      uint8_t bits_in_this_byte = (8 - bit_in_byte < bits_remaining) ? 8 - bit_in_byte : bits_remaining;
+      uint8_t mask = ((1 << bits_in_this_byte) - 1);
+      uint8_t data = (frame[byte_index] >> bit_in_byte) & mask;
+      target |= ((uint64_t)data) << current_bit;
+      bits_remaining -= bits_in_this_byte;
+      current_bit += bits_in_this_byte;
+      bit_pos += bits_in_this_byte;
     }
+  }
 
-    return target;
+  // Sign-extend if necessary
+  if (isSigned) {
+    uint64_t sign_bit = 1ULL << (length - 1);
+    if (target & sign_bit) {
+      target |= (~0ULL) << length;
+    }
+  }
+
+  return target;
 }
 
 // For Vector CAN DB files https://vector.com/vi_candb_en.html
